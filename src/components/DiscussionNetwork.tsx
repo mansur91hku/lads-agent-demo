@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import ForceGraph2D, { ForceGraphMethods, NodeObject, LinkObject } from 'react-force-graph-2d';
 import { Box, Modal, Typography, List, ListItem, ListItemText, Button, ButtonGroup } from '@mui/material';
+import useSize from '@react-hook/size';
 
 // Custom interfaces extending the library's types
 interface CustomNode extends NodeObject {
@@ -10,6 +11,7 @@ interface CustomNode extends NodeObject {
   posts: number;
   replies: number;
   group: number;
+  postsContent?: string[];
 }
 
 interface CustomLink extends LinkObject {
@@ -38,6 +40,8 @@ const style = {
 const DiscussionNetwork = ({ data }: { data: GraphData }) => {
   const [selectedNode, setSelectedNode] = useState<CustomNode | null>(null);
   const graphRef = useRef<ForceGraphMethods>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [width, height] = useSize(containerRef);
 
   const handleNodeClick = useCallback((node: NodeObject) => {
     setSelectedNode(node as CustomNode);
@@ -65,14 +69,16 @@ const DiscussionNetwork = ({ data }: { data: GraphData }) => {
   };
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+    <Box ref={containerRef} sx={{ position: 'relative', width: '100%', height: '500px', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
       <ForceGraph2D
         ref={graphRef}
+        width={width}
+        height={height}
         graphData={data}
         nodeVal={getNodeVal}
         nodeColor={node => `hsl(${(node as CustomNode).group * 60}, 100%, 50%)`}
         linkColor={() => 'rgba(0,0,0,0.2)'}
-        linkWidth={(link) => (link as CustomLink).value}
+        linkWidth={link => (link as CustomLink).value}
         onNodeClick={handleNodeClick}
         nodeCanvasObject={(node, ctx, globalScale) => {
           const customNode = node as CustomNode;
@@ -101,7 +107,7 @@ const DiscussionNetwork = ({ data }: { data: GraphData }) => {
           }
         }}
       />
-      <ButtonGroup sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
+      <ButtonGroup sx={{ position: 'absolute', bottom: 8, left: 8, zIndex: 1 }}>
         <Button onClick={handleZoomIn}>Zoom In</Button>
         <Button onClick={handleZoomOut}>Zoom Out</Button>
       </ButtonGroup>
@@ -120,8 +126,11 @@ const DiscussionNetwork = ({ data }: { data: GraphData }) => {
               Posts: {selectedNode.posts} | Replies: {selectedNode.replies}
             </Typography>
             <List>
-              <ListItem><ListItemText primary="Response 1..." /></ListItem>
-              <ListItem><ListItemText primary="Response 2..." /></ListItem>
+              {selectedNode.postsContent && selectedNode.postsContent.map((post, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={post} />
+                </ListItem>
+              ))}
             </List>
           </Box>
         </Modal>
