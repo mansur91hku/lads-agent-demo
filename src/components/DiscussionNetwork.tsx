@@ -39,9 +39,9 @@ const style = {
 
 const DiscussionNetwork = ({ data }: { data: GraphData }) => {
   const [selectedNode, setSelectedNode] = useState<CustomNode | null>(null);
-  const graphRef = useRef<ForceGraphMethods>();
+  const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [width, height] = useSize(containerRef);
+  const [width, height] = useSize(containerRef as React.RefObject<HTMLElement>);
 
   const handleNodeClick = useCallback((node: NodeObject) => {
     setSelectedNode(node as CustomNode);
@@ -69,7 +69,7 @@ const DiscussionNetwork = ({ data }: { data: GraphData }) => {
   };
 
   return (
-    <Box ref={containerRef} sx={{ position: 'relative', width: '100%', height: '500px', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
+    <Box ref={containerRef} sx={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       <ForceGraph2D
         ref={graphRef}
         width={width}

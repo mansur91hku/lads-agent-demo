@@ -84,7 +84,7 @@ export default function Home() {
           <Discussions />
         </TabPanel>
       </Box>
-      <ChatBubble />
+      <ChatBubble currentTab={["Course Grade", "Weekly Online Activity", "Students", "Discussions"][value]} />
     </Box>
   );
 }

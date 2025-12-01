@@ -34,14 +34,14 @@ const Discussions = () => {
           ))}
         </List>
       </Box>
-      <Box sx={{ flexGrow: 1, p: 3 }}>
+      <Box sx={{ flexGrow: 1, p: 3, overflow: 'hidden' }}>
         {selectedDiscussion && (
           <>
             <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
               <Typography variant="h6">Summary</Typography>
               <Typography>{selectedDiscussion.summary}</Typography>
             </Paper>
-            <Box sx={{ height: 500, border: '1px solid #ddd', borderRadius: 1, overflow: 'auto', position: 'relative' }}>
+            <Box sx={{ height: 500, border: '1px solid #ddd', borderRadius: 1, position: 'relative' }}>
               <DiscussionNetwork data={selectedDiscussion.graphData} />
             </Box>
           </>
