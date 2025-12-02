@@ -1,18 +1,33 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Box, Fab, Popover, TextField, Button, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import RefreshIcon from '@mui/icons-material/Refresh';
+
+export interface ChatBubbleHandle {
+  openChat: () => void;
+  addMessage: (text: string, sender: 'user' | 'bot') => void;
+}
 
 interface ChatBubbleProps {
   currentTab: string;
 }
 
-const ChatBubble = ({ currentTab }: ChatBubbleProps) => {
+const ChatBubble = forwardRef<ChatBubbleHandle, ChatBubbleProps>(({ currentTab }, ref) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'bot' }[]>([]);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    openChat: () => {
+      setAnchorEl(fabRef.current);
+    },
+    addMessage: (text: string, sender: 'user' | 'bot') => {
+      setMessages((prev) => [...prev, { text, sender }]);
+    }
+  }));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -58,7 +73,7 @@ const ChatBubble = ({ currentTab }: ChatBubbleProps) => {
 
   return (
     <>
-      <Fab color="primary" aria-label="chat" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={handleClick}>
+      <Fab ref={fabRef} color="primary" aria-label="chat" sx={{ position: 'fixed', bottom: 16, right: 16 }} onClick={handleClick}>
         <ChatIcon />
       </Fab>
       <Popover
@@ -122,6 +137,6 @@ const ChatBubble = ({ currentTab }: ChatBubbleProps) => {
       </Popover>
     </>
   );
-};
+});
 
 export default ChatBubble;

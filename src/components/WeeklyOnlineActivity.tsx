@@ -3,13 +3,49 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { weeklyActivityData } from '@/data/activity';
+import { weeklyActivityData, resourceActivityData } from '@/data/activity';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Box, Typography } from '@mui/material';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import HomeIcon from '@mui/icons-material/Home';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+const columns: GridColDef[] = [
+  {
+    field: 'resource',
+    headerName: 'Resource',
+    flex: 1,
+    renderCell: (params) => {
+      let Icon = AssignmentIcon;
+      if (params.row.type === 'home') Icon = HomeIcon;
+      if (params.row.type === 'file') Icon = DescriptionIcon;
+      
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
+          <Icon color="action" fontSize="small" />
+          <Typography variant="body2" noWrap title={params.value}>
+            {params.value}
+          </Typography>
+        </Box>
+      );
+    },
+  },
+  { field: 'students', headerName: 'Students', width: 100, type: 'number', align: 'center', headerAlign: 'center' },
+  { field: 'pageViews', headerName: 'Page Views', width: 120, align: 'center', headerAlign: 'center' },
+  { field: 'participations', headerName: 'Participations', width: 130, type: 'number', align: 'center', headerAlign: 'center' },
+];
 
 const WeeklyOnlineActivity = () => {
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    stacked: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -19,9 +55,56 @@ const WeeklyOnlineActivity = () => {
         text: 'Weekly Online Activity',
       },
     },
+    scales: {
+      y: {
+        type: 'linear' as const,
+        display: true,
+        position: 'left' as const,
+        title: {
+          display: true,
+          text: 'Page Views',
+        },
+      },
+      y1: {
+        type: 'linear' as const,
+        display: true,
+        position: 'right' as const,
+        grid: {
+          drawOnChartArea: false,
+        },
+        title: {
+          display: true,
+          text: 'Participations',
+        },
+      },
+    },
   };
 
-  return <Line options={options} data={weeklyActivityData} />;
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, height: '100%' }}>
+      <Box sx={{ height: 300 }}>
+        <Line options={options} data={weeklyActivityData} />
+      </Box>
+      <Box sx={{ height: 400, width: '100%' }}>
+        <Typography variant="h6" gutterBottom>
+          Resources
+        </Typography>
+        <DataGrid
+          rows={resourceActivityData}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 20,
+              },
+            },
+          }}
+          pageSizeOptions={[20, 50, 100]}
+          disableRowSelectionOnClick
+        />
+      </Box>
+    </Box>
+  );
 };
 
 export default WeeklyOnlineActivity;

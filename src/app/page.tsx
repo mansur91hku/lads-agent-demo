@@ -1,13 +1,13 @@
 'use client';
-import React, { useState } from 'react';
-import { Box, Tabs, Tab, Typography, Paper } from '@mui/material';
+import React, { useState, useRef } from 'react';
+import { Box, Tabs, Tab, Typography, Paper, Button } from '@mui/material';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import CourseGrade from '@/components/CourseGrade';
 import WeeklyOnlineActivity from '@/components/WeeklyOnlineActivity';
 import Students from '@/components/Students';
 import Discussions from '@/components/Discussions';
-import ChatBubble from '@/components/ChatBubble';
+import ChatBubble, { ChatBubbleHandle } from '@/components/ChatBubble';
 
 function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
   const { children, value, index, ...other } = props;
@@ -32,10 +32,21 @@ function TabPanel(props: { children?: React.ReactNode; index: number; value: num
 export default function Home() {
   const [value, setValue] = useState(0);
   const [summary, setSummary] = useState('');
+  const chatRef = useRef<ChatBubbleHandle>(null);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
     setSummary('');
+  };
+
+  const handleAskMore = () => {
+    if (chatRef.current) {
+      chatRef.current.openChat();
+      chatRef.current.addMessage(`I want to ask more about this summary: ${summary}`, 'user');
+      setTimeout(() => {
+        chatRef.current?.addMessage("Sure, what would you like to know more about?", 'bot');
+      }, 500);
+    }
   };
 
   const handleGenerateSummary = () => {
@@ -69,6 +80,11 @@ export default function Home() {
           <Paper elevation={3} sx={{ p: 2, m: 2, bgcolor: 'action.hover' }}>
             <Typography variant="h6">Summary</Typography>
             <Typography>{summary}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+              <Button size="small" variant="contained" color="primary" onClick={handleAskMore}>
+                Ask more
+              </Button>
+            </Box>
           </Paper>
         )}
         <TabPanel value={value} index={0}>
@@ -84,7 +100,7 @@ export default function Home() {
           <Discussions />
         </TabPanel>
       </Box>
-      <ChatBubble currentTab={["Course Grade", "Weekly Online Activity", "Students", "Discussions"][value]} />
+      <ChatBubble ref={chatRef} currentTab={["Course Grade", "Weekly Online Activity", "Students", "Discussions"][value]} />
     </Box>
   );
 }
