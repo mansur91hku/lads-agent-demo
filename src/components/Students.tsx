@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { studentsData } from '@/data/students';
+import type { StudentRecord } from '@/types/analytics';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -12,11 +12,15 @@ const columns: GridColDef[] = [
   { field: 'lastActivity', headerName: 'Last Activity', width: 160 },
 ];
 
-const Students = () => {
+interface StudentsProps {
+  students: StudentRecord[];
+}
+
+const Students = ({ students }: StudentsProps) => {
   return (
     <div style={{ height: 'auto', width: '100%' }}>
       <DataGrid
-        rows={studentsData}
+        rows={students}
         columns={columns}
         autoHeight
         checkboxSelection

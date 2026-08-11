@@ -2,28 +2,35 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Box, List, ListItem, ListItemButton, ListItemText, Typography, Paper } from '@mui/material';
-import { discussionsData } from '@/data/discussions';
+import type { DiscussionRecord } from '@/types/analytics';
 
 const DiscussionNetwork = dynamic(() => import('./DiscussionNetwork'), {
   ssr: false,
   loading: () => <p>Loading network...</p>
 });
 
-const Discussions = () => {
-  const [selectedDiscussion, setSelectedDiscussion] = useState(discussionsData[0]);
+interface DiscussionsProps {
+  discussions: DiscussionRecord[];
+}
+
+const Discussions = ({ discussions }: DiscussionsProps) => {
+  const [selectedDiscussion, setSelectedDiscussion] = useState<DiscussionRecord | null>(
+    discussions.length ? discussions[0] : null
+  );
+
+  if (!discussions.length) {
+    return <Typography sx={{ p: 3 }}>No discussion topics found for this course.</Typography>;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
       <Box sx={{ width: 300, borderRight: '1px solid #ddd' }}>
         <List>
-          {discussionsData.map((discussion) => (
-            <ListItem
-              key={discussion.id}
-              disablePadding
-            >
-              <ListItemButton 
+          {discussions.map((discussion) => (
+            <ListItem key={discussion.id} disablePadding>
+              <ListItemButton
                 onClick={() => setSelectedDiscussion(discussion)}
-                selected={selectedDiscussion.id === discussion.id}
+                selected={selectedDiscussion?.id === discussion.id}
               >
                 <ListItemText
                   primary={discussion.title}
